@@ -25,8 +25,11 @@ app.use(bodyparser.json());
 app.use(bodyparser.urlencoded({ extended: true }));
 // habilitar cors
 app.use(cors());
+app.use(express.json());
+
 // Rutas de la app
 app.use("/", routes); // No es necesario llamar a `routes()`
+app.use("/uploads", express.static("uploads"));
 
 app.listen(5000, () => {
 	console.log("🚀 Servidor corriendo en http://localhost:5000");

@@ -1,11 +1,17 @@
+//modelos
 import Usuario from "../models/Usuario.js";
+import TokensVerificacion from "../models/Tokens_verificacion.js";
+import TokenRestablecimientoPassword from "../models/Tokens_restablecimiento_password.js";
+//librerias
 import { validationResult } from "express-validator";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-//funciones mias
+//funciones mías
 import { generarId } from "../helpers/tokens.js";
 import { emailRegistro } from "../helpers/emails.js";
+import { generarTokenVerificacion } from "../controllers/Tokens_verificacionController.js";
+import { generarTokenRestablecer } from "../controllers/Tokens_restablecimiento_passwordController.js";
 
 // Registro de usuario
 export const registrarUsuario = async (req, res) => {
@@ -13,81 +19,109 @@ export const registrarUsuario = async (req, res) => {
 	if (!errores.isEmpty()) {
 		return res.status(400).json({ errores: errores.array() });
 	}
-
-	const { nombre, apellido, correo, password, telefono, pais, ciudad, genero } =
+	console.log(req.body);
+	const { nombre, apellido, correo, telefono, password, pais, genero } =
 		req.body;
 
 	try {
+		// Verificar si el correo ya está registrado
 		const usuarioExistente = await Usuario.findOne({ where: { correo } });
 		if (usuarioExistente) {
 			return res.status(400).json({ mensaje: "El correo ya está registrado" });
 		}
-		//procedimiento para almacernar en la base de datos un usuario
+
+		// Crear usuario en la base de datos
 		const usuario = await Usuario.create({
 			nombre,
 			apellido,
 			correo,
-			password,
 			telefono,
-			pais,
-			ciudad,
+			password,
+			id_ciudad: pais,
 			genero,
-			token_verificacion: generarId(),
 		});
 
-		//envia email de confirmacion
-		emailRegistro({
-			nombre: usuario.nombre,
-			email: usuario.correo,
-			token: usuario.token_verificacion,
-		});
+		// Generar el token de verificación y enviarlo por correo
+		await generarTokenVerificacion(usuario);
 
-		res.status(201).json({ mensaje: "Usuario registrado correctamente" });
+		res.status(201).json({
+			mensaje:
+				"Usuario registrado correctamente. Revisa tu correo para verificar tu cuenta.",
+		});
 	} catch (error) {
+		console.error("Error al registrar usuario:", error);
 		res.status(500).json({ mensaje: "Error en el servidor" });
 	}
 };
 
+// Confirmar cuenta
 export const confirmarCuenta = async (req, res) => {
 	const { token } = req.body;
-	console.log("llego el token:", token);
-	console.log("Token recibido en backend:", req.body.token);
+
 	if (!token) {
-		return res.status(400).json({ msg: "Token inválido o expirado." });
+		return res.status(400).json({ msg: "Token no proporcionado." });
 	}
+
 	try {
-		// Buscar el usuario por el token de validación
+		// Buscar el token en la base de datos
+		const tokenVerificacion = await TokensVerificacion.findOne({
+			where: { token },
+		});
+
+		if (!tokenVerificacion) {
+			return res.status(400).json({ msg: "Token inválido o no encontrado." });
+		}
+
+		// Verificar si el token ha expirado
+		const fechaActual = new Date();
+		if (fechaActual > tokenVerificacion.expira) {
+			return res.status(400).json({ msg: "El token ha expirado." });
+		}
+
+		// Decodificar el token para obtener el id del usuario
+		const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+		if (!decoded) {
+			return res.status(400).json({ msg: "Token no válido." });
+		}
+
+		// Buscar el usuario usando el id extraído del token
 		const usuario = await Usuario.findOne({
-			where: { token_verificacion: token },
+			where: { id_usuario: decoded.usuarioId },
 		});
 
 		if (!usuario) {
-			return res.status(400).json({ msg: "Token inválido o expirado." });
+			return res.status(404).json({ msg: "Usuario no encontrado." });
 		}
 
-		// Actualizar el estado de la cuenta
-		await usuario.update({ verificado: true, token_verificacion: null });
+		// Actualizar el estado de la cuenta y eliminar el token
+		await usuario.update({ estado: "confirmado" });
 
+		// Eliminar el token de la base de datos para evitar que se reutilice
+		await TokensVerificacion.destroy({ where: { token } });
+
+		// Responder con éxito
 		res.json({ msg: "Cuenta confirmada correctamente." });
 	} catch (error) {
-		console.error(error); // Puedes agregar logs para depuración
+		console.error("Error al confirmar cuenta:", error);
 		res.status(500).json({ msg: "Error en el servidor." });
 	}
 };
+
 // Mostrar todos los usuarios
 export const mostrarUsuarios = async (req, res) => {
 	try {
 		const usuarios = await Usuario.findAll({
 			attributes: [
-				"id",
+				"id_usuario",
 				"nombre",
 				"apellido",
 				"correo",
 				"telefono",
-				"pais",
-				"ciudad",
+				"estado",
+				"rol_id",
+				"id_ciudad",
 				"genero",
-				"verificado",
 			],
 		});
 		res.json(usuarios);
@@ -97,13 +131,13 @@ export const mostrarUsuarios = async (req, res) => {
 	}
 };
 
-// Mostrar usuario en especifico (ID)
+// Mostrar un usuario específico por ID
 export const mostrarUsuario = async (req, res) => {
 	try {
 		const { idUsuario } = req.params;
 		const usuario = await Usuario.findByPk(idUsuario, {
 			attributes: [
-				"id",
+				"id_usuario",
 				"nombre",
 				"apellido",
 				"correo",
@@ -125,7 +159,83 @@ export const mostrarUsuario = async (req, res) => {
 	}
 };
 
-// Actualiza un usuario por su ID
+// recuperar password
+// recuperar password
+export const recuperarpassword = async (req, res) => {
+	try {
+		const { email } = req.body;
+
+		// Verificar si el usuario existe
+		const usuario = await Usuario.findOne({ where: { correo: email } });
+
+		if (!usuario) {
+			return res
+				.status(404)
+				.json({ msg: "No existe una cuenta con ese correo." });
+		}
+
+		// Eliminar cualquier token anterior (esto está bien para evitar tokens viejos)
+		await TokenRestablecimientoPassword.destroy({
+			where: { id_usuario: usuario.id_usuario },
+		});
+
+		// Generar un nuevo token JWT (válido por 1 hora)
+		const token = await generarTokenRestablecer(usuario); // Obtiene el token generado
+
+		// El token ya es enviado en la función generarTokenRestablecer, no es necesario duplicar el envío
+		console.log("Revisa el correo, enviamos las instrucciones.");
+
+		return res.json({ msg: "Se ha enviado un correo con las instrucciones." });
+	} catch (error) {
+		console.error("Error en recuperar contraseña:", error);
+		return res.status(500).json({ msg: "Error interno del servidor." });
+	}
+};
+
+// cambiarpassword
+export const cambiarpassword = async (req, res) => {
+	try {
+		const { token, nuevaPassword } = req.body;
+
+		if (!token) {
+			console.log("token no proporcionado");
+			return res.status(400).json({ error: "Token no proporcionado." });
+		}
+
+		const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+		const tokenRecord = await TokenRestablecimientoPassword.findOne({
+			where: { token, id_usuario: decoded.usuarioId },
+		});
+
+		if (!tokenRecord || tokenRecord.expira < new Date()) {
+			console.log("token invalido o expirado");
+			return res.status(400).json({ error: "Token inválido o expirado." });
+		}
+
+		const usuario = await Usuario.findByPk(decoded.usuarioId);
+
+		if (!usuario) {
+			console.log("usuario no encontrado");
+			return res.status(404).json({ error: "Usuario no encontrado." });
+		}
+
+		const hashedPassword = await bcrypt.hash(nuevaPassword, 10);
+
+		usuario.password = hashedPassword;
+
+		await usuario.save();
+
+		await TokenRestablecimientoPassword.destroy({ where: { token } });
+		console.log("se cambio la contraseña exitosamente");
+		return res.json({ mensaje: "Contraseña cambiada exitosamente." });
+	} catch (err) {
+		console.error("Error al cambiar la contraseña:", err);
+		return res.status(500).json({ error: "Ocurrió un error en el servidor." });
+	}
+};
+
+// Actualizar un usuario por ID
 export const actualizarUsuario = async (req, res) => {
 	try {
 		const { idUsuario } = req.params;
@@ -178,19 +288,15 @@ export const loginUsuario = async (req, res) => {
 	const { correo, password } = req.body;
 
 	try {
-		// Buscar usuario
 		const usuario = await Usuario.findOne({ where: { correo } });
 
-		// Mensaje de error genérico para evitar revelar información sensible
-		const mensajeError = "Correo o contraseña incorrectos";
-
-		// Verificar si el usuario existe y la contraseña es válida
 		if (!usuario || !(await bcrypt.compare(password, usuario.password))) {
-			return res.status(400).json({ mensaje: mensajeError });
+			return res
+				.status(400)
+				.json({ mensaje: "Correo o contraseña incorrectos" });
 		}
 
-		// Verificar si la cuenta está confirmada
-		if (usuario.token_verificacion !== null) {
+		if (usuario.estado == "pendiente") {
 			return res.status(400).json({
 				mensaje: "Cuenta pendiente de verificación. Revisa tu correo.",
 				verificado: false,
@@ -198,11 +304,10 @@ export const loginUsuario = async (req, res) => {
 		}
 
 		// Generar token JWT
-		const token = jwt.sign({ id: usuario.id }, process.env.JWT_SECRET, {
+		const token = jwt.sign({ id: usuario.id_usuario }, process.env.JWT_SECRET, {
 			expiresIn: "1h",
 		});
 
-		// Enviar la respuesta con datos mínimos
 		res.json({
 			mensaje: "Inicio de sesión exitoso",
 			token,
@@ -210,7 +315,63 @@ export const loginUsuario = async (req, res) => {
 			apellido: usuario.apellido,
 		});
 	} catch (error) {
-		console.error(error);
+		console.error("Error en el inicio de sesión:", error);
+		res.status(500).json({ mensaje: "Ocurrió un error. Inténtalo más tarde." });
+	}
+};
+
+/**
+ * ==========================================
+ * SECCION DE ADMINISTRADORES
+ * ==========================================
+ */
+
+export const loginAdministrador = async (req, res) => {
+	const { email, password } = req.body;
+
+	try {
+		// Buscar el usuario por correo
+		const usuario = await Usuario.findOne({ where: { correo: email } });
+
+		if (!usuario || !(await bcrypt.compare(password, usuario.password))) {
+			return res
+				.status(400)
+				.json({ mensaje: "Correo o contraseña incorrectos" });
+		}
+
+		// Verificar si la cuenta está pendiente de verificación
+		if (usuario.estado === "pendiente") {
+			return res.status(400).json({
+				mensaje: "Cuenta pendiente de verificación. Revisa tu correo.",
+				verificado: false,
+			});
+		}
+
+		// Verificar si el rol es admin (rol_id == 6)
+		if (usuario.rol_id !== 6) {
+			return res
+				.status(403)
+				.json({ mensaje: "Acceso denegado. No eres un administrador." });
+		}
+
+		// Generar el token JWT para el administrador
+		const token = jwt.sign(
+			{ id: usuario.id_usuario, rol_id: usuario.rol_id },
+			process.env.JWT_SECRET,
+			{
+				expiresIn: "1h", // Puedes ajustar el tiempo de expiración según sea necesario
+			}
+		);
+
+		// Responder con el token y la información del usuario
+		res.json({
+			mensaje: "Inicio de sesión exitoso",
+			token,
+			nombre: usuario.nombre,
+			apellido: usuario.apellido,
+		});
+	} catch (error) {
+		console.error("Error en el inicio de sesión:", error);
 		res.status(500).json({ mensaje: "Ocurrió un error. Inténtalo más tarde." });
 	}
 };
