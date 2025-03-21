@@ -111,6 +111,8 @@ export const confirmarCuenta = async (req, res) => {
 // Mostrar todos los usuarios
 export const mostrarUsuarios = async (req, res) => {
 	try {
+		console.log("el user su sesion esta activa de momento: ", req.usuario);
+
 		const usuarios = await Usuario.findAll({
 			attributes: [
 				"id_usuario",
@@ -124,7 +126,9 @@ export const mostrarUsuarios = async (req, res) => {
 				"genero",
 			],
 		});
+
 		res.json(usuarios);
+		console.log("sigo enviando:", usuarios);
 	} catch (error) {
 		console.error("Error al obtener los usuarios:", error);
 		res.status(500).json({ mensaje: "Error en el servidor" });
@@ -359,7 +363,7 @@ export const loginAdministrador = async (req, res) => {
 			{ id: usuario.id_usuario, rol_id: usuario.rol_id },
 			process.env.JWT_SECRET,
 			{
-				expiresIn: "1h", // Puedes ajustar el tiempo de expiración según sea necesario
+				expiresIn: "60s", // Puedes ajustar el tiempo de expiración según sea necesario
 			}
 		);
 

@@ -53,6 +53,7 @@ export const crearEvento = async (req, res, next) => {
 
 export const mostrarEventos = async (req, res) => {
 	try {
+		console.log("----------------para la vista homepage-------------");
 		const eventos = await Evento.findAll({
 			order: [["fecha_inicio", "ASC"]],
 		});

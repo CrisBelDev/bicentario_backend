@@ -29,8 +29,7 @@ const router = express.Router();
 //agrega nuevos usuarios por post
 router.post("/usuarios", registrarUsuario);
 router.post("/confirmar", confirmarCuenta);
-// Obtener todos los usuarios
-router.get("/usuarios", mostrarUsuarios);
+
 // Obtener usuario en especifico (ID)
 router.get("/usuarios/:idUsuario", mostrarUsuario);
 // recuperar contraseña
@@ -51,6 +50,8 @@ router.post("/login", loginUsuario);
  * ==========================================
  */
 router.post("/admin/login", loginAdministrador);
+// Obtener todos los usuarios
+router.get("/usuarios", verificarToken, mostrarUsuarios);
 
 /**
  * ==========================================
