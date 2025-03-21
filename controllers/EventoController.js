@@ -2,30 +2,18 @@ import Evento from "../models/Evento.js";
 import jwt from "jsonwebtoken";
 // para la subida de arhivos
 import upload from "../config/multerConfig.js";
-export const crearEvento = async (req, res) => {
+export const crearEvento = async (req, res, next) => {
 	console.log("Datos recibidos en el backend:", req.body);
 	console.log("Archivo recibido:", req.file);
 
-	const authHeader = req.headers.authorization;
-	if (!authHeader) {
-		return res.status(401).json({ message: "No se proporcionó el token" });
-	}
-
-	const token = authHeader.split(" ")[1];
-
-	let id_usuario;
-	try {
-		const decoded = jwt.verify(token, process.env.JWT_SECRET);
-		id_usuario = decoded.id;
-	} catch (error) {
-		console.error("Error al verificar token:", error.message);
-		return res.status(401).json({ message: "Token inválido o expirado" });
-	}
+	// `id_usuario` ya está disponible en `req.usuario` gracias al middleware de verificación del token
+	const id_usuario = req.usuario.id;
 
 	try {
 		const { titulo, descripcion, fecha_inicio, fecha_fin, ubicacion, tipo } =
 			req.body;
 
+		// Validación de los campos obligatorios
 		if (
 			!titulo ||
 			!descripcion ||
@@ -39,9 +27,10 @@ export const crearEvento = async (req, res) => {
 			});
 		}
 
-		// Obtener URL de la imagen
+		// Obtener la URL de la imagen si existe
 		const imagenes = req.file ? `/uploads/${req.file.filename}` : null;
 
+		// Crear el evento en la base de datos
 		const nuevoEvento = await Evento.create({
 			id_usuario,
 			titulo,
@@ -49,7 +38,7 @@ export const crearEvento = async (req, res) => {
 			fecha_inicio,
 			fecha_fin,
 			ubicacion,
-			imagenes, // Guarda la ruta de la imagen
+			imagenes, // Guardar la ruta de la imagen
 			tipo,
 		});
 
@@ -61,6 +50,7 @@ export const crearEvento = async (req, res) => {
 		return res.status(500).json({ message: "Error interno del servidor" });
 	}
 };
+
 export const mostrarEventos = async (req, res) => {
 	try {
 		const eventos = await Evento.findAll({

@@ -1,5 +1,5 @@
 import express, { Router } from "express";
-
+import { verificarToken } from "../middleware/verificarToken.js";
 import {
 	registrarUsuario,
 	confirmarCuenta,
@@ -72,7 +72,12 @@ router.get("/ciudades/:id_pais", mostrarCiudades);
  * RUTAS PARA LA SECCION DE EVENTOS
  * ==========================================
  */
-router.post("/evento/registrar", upload.single("imagenes"), crearEvento);
+router.post(
+	"/evento/registrar",
+	verificarToken, // Primero verificamos si el usuario está autenticado
+	upload.single("imagenes"), // Luego procesamos la imagen
+	crearEvento // Finalmente, creamos el evento
+);
 router.get("/evento/mostrar", mostrarEventos);
 
 export default router;
