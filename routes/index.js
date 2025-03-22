@@ -52,7 +52,12 @@ router.post("/login", loginUsuario);
 router.post("/admin/login", loginAdministrador);
 // Obtener todos los usuarios
 router.get("/usuarios", verificarToken, mostrarUsuarios);
-
+router.post(
+	"/evento/registrar",
+	verificarToken, // Primero verificamos si el usuario está autenticado
+	upload.single("imagenes"), // Luego procesamos la imagen
+	crearEvento // Finalmente, creamos el evento
+);
 /**
  * ==========================================
  * RUTAS PARA LA SECCION DE PAISES
@@ -73,12 +78,7 @@ router.get("/ciudades/:id_pais", mostrarCiudades);
  * RUTAS PARA LA SECCION DE EVENTOS
  * ==========================================
  */
-router.post(
-	"/evento/registrar",
-	verificarToken, // Primero verificamos si el usuario está autenticado
-	upload.single("imagenes"), // Luego procesamos la imagen
-	crearEvento // Finalmente, creamos el evento
-);
+
 router.get("/evento/mostrar", mostrarEventos);
 
 export default router;

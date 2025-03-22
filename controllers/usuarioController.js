@@ -128,7 +128,7 @@ export const mostrarUsuarios = async (req, res) => {
 		});
 
 		res.json(usuarios);
-		console.log("sigo enviando:", usuarios);
+		//console.log("sigo enviando:", usuarios);
 	} catch (error) {
 		console.error("Error al obtener los usuarios:", error);
 		res.status(500).json({ mensaje: "Error en el servidor" });
