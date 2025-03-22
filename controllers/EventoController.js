@@ -79,3 +79,57 @@ export const mostrarEventos = async (req, res) => {
 		return res.status(500).json({ message: "Error interno del servidor" });
 	}
 };
+
+export const mostrarEventosPaginados = async (req, res) => {
+	try {
+		// Obtener los parámetros de la query: página (page) y límite (limit)
+		const { page = 1, limit = 10 } = req.query;
+
+		// Convertir los parámetros en números enteros
+		const pageNumber = parseInt(page);
+		const limitNumber = parseInt(limit);
+
+		// Asegurarnos de que los números sean válidos
+		if (pageNumber <= 0 || limitNumber <= 0) {
+			return res
+				.status(400)
+				.json({ message: "Parámetros de paginación inválidos" });
+		}
+		console.log("eventos a mostrar en la pagina: ", pageNumber);
+		// Obtener los eventos de la base de datos con paginación
+		const eventos = await Evento.findAll({
+			order: [["fecha_inicio", "ASC"]],
+			offset: (pageNumber - 1) * limitNumber, // Número de eventos a omitir
+			limit: limitNumber, // Número de eventos a obtener
+		});
+
+		// Si no hay eventos
+		if (eventos.length === 0) {
+			return res.status(404).json({ message: "No hay eventos disponibles" });
+		}
+
+		// Obtener el total de eventos para calcular las páginas
+		const totalEventos = await Evento.count();
+
+		// Agregar URL completa a las imágenes
+		const eventosConImagenes = eventos.map((evento) => ({
+			...evento.toJSON(),
+			imagenes: evento.imagenes
+				? `${req.protocol}://${req.get("host")}${evento.imagenes}`
+				: null, // Si no tiene imagen, asignamos null
+		}));
+
+		// Calcular el total de páginas
+		const totalPages = Math.ceil(totalEventos / limitNumber);
+
+		return res.status(200).json({
+			message: "Eventos encontrados",
+			eventos: eventosConImagenes,
+			currentPage: pageNumber, // Página actual
+			totalPages, // Total de páginas
+		});
+	} catch (error) {
+		console.error("Error al obtener los eventos:", error);
+		return res.status(500).json({ message: "Error interno del servidor" });
+	}
+};

@@ -20,6 +20,7 @@ import { mostrarCiudades } from "../controllers/CiudadController.js";
 import {
 	crearEvento,
 	mostrarEventos,
+	mostrarEventosPaginados,
 } from "../controllers/EventoController.js";
 
 import upload from "../config/multerConfig.js";
@@ -80,5 +81,6 @@ router.get("/ciudades/:id_pais", mostrarCiudades);
  */
 
 router.get("/evento/mostrar", mostrarEventos);
+router.get("/evento/mostrarPaginas", mostrarEventosPaginados);
 
 export default router;
