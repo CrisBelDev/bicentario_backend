@@ -21,10 +21,16 @@ import {
 	crearEvento,
 	mostrarEventos,
 	mostrarEventosPaginados,
+	mostrarEventoPorId,
 } from "../controllers/EventoController.js";
 
-import upload from "../config/multerConfig.js";
+import { upload, upload1 } from "../config/multerConfig.js";
 
+import EventoCulturalController, {
+	subirImagenBlog,
+} from "../controllers/Evento_culturalController.js";
+
+//------------------------RUTAS------------------------------
 const router = express.Router();
 
 //agrega nuevos usuarios por post
@@ -59,6 +65,10 @@ router.post(
 	upload.single("imagenes"), // Luego procesamos la imagen
 	crearEvento // Finalmente, creamos el evento
 );
+
+router.get("/evento/detalle/:id", mostrarEventoPorId);
+router.post("/upload-image", upload1.single("image"), subirImagenBlog);
+
 /**
  * ==========================================
  * RUTAS PARA LA SECCION DE PAISES
@@ -82,5 +92,38 @@ router.get("/ciudades/:id_pais", mostrarCiudades);
 
 router.get("/evento/mostrar", mostrarEventos);
 router.get("/evento/mostrarPaginas", mostrarEventosPaginados);
+
+/**
+ * ==========================================
+ * RUTAS PARA LA SECCION DE EVENTOS CULTURAL
+ * ==========================================
+ */
+
+// Obtener todos los eventos culturales
+router.get("/evento-cultural", EventoCulturalController.getAll);
+
+// Obtener un evento cultural por ID
+router.get("/evento-cultural/:id", EventoCulturalController.getById);
+
+// Crear un nuevo evento cultural
+router.post(
+	"/evento-cultural",
+
+	EventoCulturalController.create
+);
+
+// Actualizar un evento cultural
+router.put(
+	"/evento-cultural/:id",
+	verificarToken,
+	EventoCulturalController.update
+);
+
+// Eliminar un evento cultural
+router.delete(
+	"/evento-cultural/:id",
+	verificarToken,
+	EventoCulturalController.delete
+);
 
 export default router;

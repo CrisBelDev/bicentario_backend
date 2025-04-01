@@ -1,7 +1,7 @@
 import Evento from "../models/Evento.js";
 import jwt from "jsonwebtoken";
 // para la subida de arhivos
-import upload from "../config/multerConfig.js";
+import { upload } from "../config/multerConfig.js";
 export const crearEvento = async (req, res, next) => {
 	console.log("Datos recibidos en el backend:", req.body);
 	console.log("Archivo recibido:", req.file);
@@ -98,7 +98,7 @@ export const mostrarEventosPaginados = async (req, res) => {
 		console.log("eventos a mostrar en la pagina: ", pageNumber);
 		// Obtener los eventos de la base de datos con paginación
 		const eventos = await Evento.findAll({
-			order: [["fecha_inicio", "ASC"]],
+			order: [["fecha_inicio", "DESC"]],
 			offset: (pageNumber - 1) * limitNumber, // Número de eventos a omitir
 			limit: limitNumber, // Número de eventos a obtener
 		});
@@ -130,6 +130,36 @@ export const mostrarEventosPaginados = async (req, res) => {
 		});
 	} catch (error) {
 		console.error("Error al obtener los eventos:", error);
+		return res.status(500).json({ message: "Error interno del servidor" });
+	}
+};
+export const mostrarEventoPorId = async (req, res) => {
+	try {
+		// Obtener el ID del evento desde los parámetros de la ruta
+		const { id } = req.params;
+
+		// Buscar el evento en la base de datos por su ID
+		const evento = await Evento.findByPk(id);
+
+		// Si el evento no existe, devolver un error 404
+		if (!evento) {
+			return res.status(404).json({ message: "Evento no encontrado" });
+		}
+
+		// Agregar URL completa a las imágenes
+		const eventoConImagenes = {
+			...evento.toJSON(),
+			imagenes: evento.imagenes
+				? `${req.protocol}://${req.get("host")}${evento.imagenes}`
+				: null, // Si no tiene imagen, asignamos null
+		};
+
+		return res.status(200).json({
+			message: "Evento encontrado",
+			evento: eventoConImagenes,
+		});
+	} catch (error) {
+		console.error("Error al obtener el evento:", error);
 		return res.status(500).json({ message: "Error interno del servidor" });
 	}
 };
