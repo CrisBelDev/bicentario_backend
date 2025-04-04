@@ -55,7 +55,7 @@ export const mostrarEventos = async (req, res) => {
 	try {
 		console.log("----------------para la vista homepage-------------");
 		const eventos = await Evento.findAll({
-			order: [["fecha_inicio", "ASC"]],
+			order: [["fecha_inicio", "DESC"]],
 		});
 
 		if (eventos.length === 0) {
@@ -160,6 +160,29 @@ export const mostrarEventoPorId = async (req, res) => {
 		});
 	} catch (error) {
 		console.error("Error al obtener el evento:", error);
+		return res.status(500).json({ message: "Error interno del servidor" });
+	}
+};
+
+export const eliminarEvento = async (req, res) => {
+	try {
+		// Obtener el ID del evento desde los parámetros de la ruta
+		const { id_evento } = req.params;
+
+		// Buscar el evento en la base de datos por su ID
+		const evento = await Evento.findByPk(id_evento);
+
+		// Si el evento no existe, devolver un error 404
+		if (!evento) {
+			return res.status(404).json({ message: "Evento no encontrado" });
+		}
+
+		// Eliminar el evento
+		await evento.destroy();
+
+		return res.status(200).json({ message: "Evento eliminado con éxito" });
+	} catch (error) {
+		console.error("Error al eliminar el evento:", error);
 		return res.status(500).json({ message: "Error interno del servidor" });
 	}
 };
