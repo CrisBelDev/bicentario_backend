@@ -1,7 +1,11 @@
 import Evento from "../models/Evento.js";
 import jwt from "jsonwebtoken";
+import fs from "fs";
+import path from "path";
+
 // para la subida de arhivos
 import { upload } from "../config/multerConfig.js";
+import { Console } from "console";
 export const crearEvento = async (req, res, next) => {
 	console.log("Datos recibidos en el backend:", req.body);
 	console.log("Archivo recibido:", req.file);
@@ -184,5 +188,69 @@ export const eliminarEvento = async (req, res) => {
 	} catch (error) {
 		console.error("Error al eliminar el evento:", error);
 		return res.status(500).json({ message: "Error interno del servidor" });
+	}
+};
+
+export const editarEvento = async (req, res) => {
+	try {
+		const { id } = req.params;
+		const { titulo, descripcion, fecha_inicio, fecha_fin, ubicacion, tipo } =
+			req.body;
+
+		// Buscar el evento
+		const evento = await Evento.findByPk(id);
+		if (!evento) {
+			return res.status(404).json({ mensaje: "Evento no encontrado" });
+		}
+
+		// Imagen anterior guardada en la base de datos
+		let imagenAnterior = evento.imagenes;
+		let nuevaImagen = imagenAnterior; // por defecto conservar la misma imagen
+
+		console.log("📷 Imagen anterior:", imagenAnterior);
+
+		// Si se subió una nueva imagen
+		if (req.file) {
+			// Verificar que la imagen anterior no sea null antes de manipularla
+			if (imagenAnterior) {
+				const rutaImagenAnterior = path.join(
+					".",
+					imagenAnterior.replace(/^\/+/, "")
+				);
+				console.log(
+					"🛣️ Ruta absoluta de la imagen anterior:",
+					rutaImagenAnterior
+				);
+
+				if (fs.existsSync(rutaImagenAnterior)) {
+					console.log("✅ Imagen anterior encontrada. Eliminando...");
+					fs.unlinkSync(rutaImagenAnterior);
+					console.log("🗑️ Imagen anterior eliminada");
+				}
+			}
+
+			// Guardar nueva imagen
+			nuevaImagen = `/uploads/${req.file.filename}`;
+			console.log("🆕 Nueva imagen guardada:", nuevaImagen);
+		}
+
+		// Actualizar el evento con los datos y la nueva imagen (si se subió una)
+		await evento.update({
+			titulo,
+			descripcion,
+			fecha_inicio,
+			fecha_fin,
+			ubicacion,
+			tipo,
+			imagenes: nuevaImagen, // Aquí es donde se asigna la nueva imagen
+		});
+
+		return res.json({
+			mensaje: "✅ Evento actualizado correctamente",
+			evento,
+		});
+	} catch (error) {
+		console.error("❌ Error al editar el evento:", error);
+		return res.status(500).json({ mensaje: "Error del servidor" });
 	}
 };

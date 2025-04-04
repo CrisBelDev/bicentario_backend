@@ -23,6 +23,7 @@ import {
 	mostrarEventosPaginados,
 	mostrarEventoPorId,
 	eliminarEvento,
+	editarEvento,
 } from "../controllers/EventoController.js";
 
 import { upload, upload1 } from "../config/multerConfig.js";
@@ -95,6 +96,12 @@ router.get("/ciudades/:id_pais", mostrarCiudades);
 router.get("/evento/mostrar", mostrarEventos);
 router.get("/evento/mostrarPaginas", mostrarEventosPaginados);
 router.delete("/evento/eliminar/:id_evento", eliminarEvento);
+router.put(
+	"/evento/editar/:id",
+	verificarToken,
+	upload.single("imagenes"),
+	editarEvento
+);
 
 /**
  * ==========================================
