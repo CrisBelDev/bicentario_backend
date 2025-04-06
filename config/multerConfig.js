@@ -12,6 +12,16 @@ const storage = multer.diskStorage({
 	},
 });
 
+const storage_evento_cultural = multer.diskStorage({
+	destination: (req, file, cb) => {
+		cb(null, "uploads/evento_cultural"); // Carpeta donde se guardarán las imágenes
+	},
+	filename: (req, file, cb) => {
+		const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+		cb(null, uniqueSuffix + path.extname(file.originalname)); // Nombre único
+	},
+});
+
 //otra ruta:
 const storage1 = multer.diskStorage({
 	destination: (req, file, cb) => {
@@ -37,7 +47,13 @@ const fileFilter = (req, file, cb) => {
 export const upload = multer({
 	storage: storage,
 	fileFilter: fileFilter,
-	limits: { fileSize: 2 * 1024 * 1024 }, // Límite de 2MB por imagen
+	limits: { fileSize: 10 * 1024 * 1024 }, // Límite de 10MB por imagen
+});
+
+export const upload_evento_cultural = multer({
+	storage: storage_evento_cultural,
+	fileFilter: fileFilter,
+	limits: { fileSize: 10 * 1024 * 1024 }, // Límite de 10MB por imagen
 });
 
 export const upload1 = multer({

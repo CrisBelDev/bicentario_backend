@@ -26,7 +26,11 @@ import {
 	editarEvento,
 } from "../controllers/EventoController.js";
 
-import { upload, upload1 } from "../config/multerConfig.js";
+import {
+	upload,
+	upload1,
+	upload_evento_cultural,
+} from "../config/multerConfig.js";
 
 import EventoCulturalController, {
 	subirImagenBlog,
@@ -118,7 +122,7 @@ router.get("/evento-cultural/:id", EventoCulturalController.getById);
 // Crear un nuevo evento cultural
 router.post(
 	"/evento-cultural",
-
+	upload_evento_cultural.single("afichePromocional"),
 	EventoCulturalController.create
 );
 

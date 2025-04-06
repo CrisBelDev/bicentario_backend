@@ -34,6 +34,11 @@ const Evento = db.define(
 			type: DataTypes.DATE,
 			allowNull: false,
 		},
+		lugar: {
+			type: DataTypes.STRING(255),
+			allowNull: true,
+		},
+
 		ubicacion: {
 			type: DataTypes.STRING(255),
 			allowNull: false,

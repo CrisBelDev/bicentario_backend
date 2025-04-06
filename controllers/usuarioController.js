@@ -363,7 +363,7 @@ export const loginAdministrador = async (req, res) => {
 			{ id: usuario.id_usuario, rol_id: usuario.rol_id },
 			process.env.JWT_SECRET,
 			{
-				expiresIn: "1h", // Puedes ajustar el tiempo de expiración según sea necesario
+				expiresIn: "12h", // Puedes ajustar el tiempo de expiración según sea necesario
 			}
 		);
 

@@ -14,8 +14,15 @@ export const crearEvento = async (req, res, next) => {
 	const id_usuario = req.usuario.id;
 
 	try {
-		const { titulo, descripcion, fecha_inicio, fecha_fin, ubicacion, tipo } =
-			req.body;
+		const {
+			titulo,
+			descripcion,
+			fecha_inicio,
+			fecha_fin,
+			ubicacion,
+			tipo,
+			lugar,
+		} = req.body;
 
 		// Validación de los campos obligatorios
 		if (
@@ -44,6 +51,7 @@ export const crearEvento = async (req, res, next) => {
 			ubicacion,
 			imagenes, // Guardar la ruta de la imagen
 			tipo,
+			lugar,
 		});
 
 		return res

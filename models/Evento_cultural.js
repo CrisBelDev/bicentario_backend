@@ -25,6 +25,34 @@ const EventoCultural = db.define(
 			type: DataTypes.TEXT,
 			allowNull: false,
 		},
+		titulo: {
+			type: DataTypes.STRING,
+			allowNull: false, // Campo obligatorio
+		},
+		tipo_evento: {
+			type: DataTypes.STRING,
+			allowNull: false, // Campo obligatorio
+		},
+		fecha_inicio: {
+			type: DataTypes.DATE,
+			allowNull: false, // Campo obligatorio
+		},
+		fecha_finalizacion: {
+			type: DataTypes.DATE,
+			allowNull: false, // Campo obligatorio
+		},
+		lugar: {
+			type: DataTypes.STRING,
+			allowNull: false, // Campo obligatorio
+		},
+		organizado_por: {
+			type: DataTypes.STRING,
+			allowNull: false, // Campo obligatorio
+		},
+		afiche_promocional: {
+			type: DataTypes.STRING, // Podría ser la URL o el nombre del archivo
+			allowNull: true, // Puede ser opcional
+		},
 	},
 	{
 		tableName: "evento_cultural",

@@ -24,12 +24,37 @@ const EventoCulturalController = {
 	},
 
 	async create(req, res) {
+		console.log("data===>", req.body);
 		try {
-			const { id_evento, descripcion } = req.body;
+			// Desestructurar los nuevos campos del cuerpo de la solicitud
+			const {
+				id_evento,
+				descripcion,
+				titulo,
+				tipoEvento,
+				fechaInicio,
+				fechaFin,
+				lugar,
+				organizadoPor,
+			} = req.body;
+
+			// Obtener la URL de la imagen si existe
+			const imagenes = req.file ? `/uploads/${req.file.filename}` : null;
+
+			// Crear un nuevo evento cultural en la base de datos con los nuevos campos
 			const nuevoEventoCultural = await EventoCultural.create({
 				id_evento,
 				descripcion,
+				titulo, // Campo agregado
+				tipo_evento: tipoEvento, // Campo agregado
+				fecha_inicio: fechaInicio, // Campo agregado
+				fecha_finalizacion: fechaFin, // Campo agregado
+				lugar, // Campo agregado
+				organizado_por: organizadoPor, // Campo agregado
+				afiche_promocional: imagenes, // Campo agregado (opcional)
 			});
+
+			// Responder con el evento cultural recién creado
 			res.status(201).json(nuevoEventoCultural);
 		} catch (error) {
 			console.log(error);
