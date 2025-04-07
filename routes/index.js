@@ -118,7 +118,7 @@ router.get("/evento-cultural", EventoCulturalController.getAll);
 
 // Obtener un evento cultural por ID
 router.get("/evento-cultural/:id", EventoCulturalController.getById);
-
+router.get("/evento-cultural-info/:id", EventoCulturalController.getByIdPk);
 // Crear un nuevo evento cultural
 router.post(
 	"/evento-cultural",
@@ -127,17 +127,14 @@ router.post(
 );
 
 // Actualizar un evento cultural
+//router.put("/evento-cultural/:id", EventoCulturalController.update);
 router.put(
 	"/evento-cultural/:id",
-	verificarToken,
+	upload_evento_cultural.single("afiche_promocional"),
 	EventoCulturalController.update
 );
 
 // Eliminar un evento cultural
-router.delete(
-	"/evento-cultural/:id",
-	verificarToken,
-	EventoCulturalController.delete
-);
+router.delete("/evento-cultural/:id", EventoCulturalController.delete);
 
 export default router;
