@@ -36,6 +36,15 @@ import EventoCulturalController, {
 	subirImagenBlog,
 } from "../controllers/Evento_culturalController.js";
 
+import {
+	createEtnia,
+	getAllEtnias,
+	getEtniaById,
+	associateEtniaToEventoCultural,
+	getEventosCulturalesByEtnia,
+	getEtniasByEventoCultural,
+} from "../controllers/EtniaController.js";
+
 //------------------------RUTAS------------------------------
 const router = express.Router();
 
@@ -138,3 +147,9 @@ router.put(
 router.delete("/evento-cultural/:id", EventoCulturalController.delete);
 
 export default router;
+
+// Rutas de etnia
+router.post("/etnias", createEtnia);
+router.get("/etnias", getAllEtnias);
+router.get("/etnias/:id", getEtniaById);
+router.post("/etnia_evento_cultural", associateEtniaToEventoCultural);

@@ -173,6 +173,42 @@ const EventoCulturalController = {
 			res.status(500).json({ error: "Error al eliminar el evento cultural" });
 		}
 	},
+	// Método para obtener los eventos culturales y las etnias asociadas
+	async getEventosConEtnias(req, res) {
+		try {
+			const { id } = req.params;
+
+			// Obtener evento cultural por id
+			const eventoCultural = await EventoCultural.findByPk(id, {
+				include: {
+					model: Etnia,
+					through: { attributes: [] }, // Evita que se muestre la tabla intermedia
+					attributes: [
+						"nombre",
+						"origen",
+						"ubicacion",
+						"idioma",
+						"costumbres",
+						"vestimenta",
+					],
+				},
+			});
+
+			if (!eventoCultural) {
+				return res.status(404).json({ error: "Evento cultural no encontrado" });
+			}
+
+			res.json({ eventoCultural });
+		} catch (error) {
+			console.error(
+				"Error al obtener los eventos culturales con etnias:",
+				error
+			);
+			res
+				.status(500)
+				.json({ error: "Error al obtener los eventos culturales con etnias" });
+		}
+	},
 };
 
 // Función para manejar la subida de imágenes

@@ -34,10 +34,6 @@ const Etnia = db.define(
 			type: DataTypes.TEXT,
 			allowNull: false,
 		},
-		imagen: {
-			type: DataTypes.STRING(255), // URL de la imagen
-			allowNull: true,
-		},
 	},
 	{
 		tableName: "etnia",
