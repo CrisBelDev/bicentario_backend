@@ -29,7 +29,7 @@ export const createEtnia = async (req, res) => {
 export const getAllEtnias = async (req, res) => {
 	try {
 		const etnias = await Etnia.findAll();
-		res.json({ etnias });
+		res.json(etnias);
 	} catch (error) {
 		console.error("Error al obtener etnias:", error);
 		res.status(500).json({ error: "Error al obtener etnias" });

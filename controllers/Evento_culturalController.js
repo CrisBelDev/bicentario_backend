@@ -111,6 +111,8 @@ const EventoCulturalController = {
 	},
 
 	async update(req, res) {
+		console.log(req.body.etnias);
+		console.log("--------------");
 		try {
 			const { id } = req.params;
 			const {
@@ -126,6 +128,7 @@ const EventoCulturalController = {
 
 			// Buscar el evento cultural por su id
 			const eventoCultural = await EventoCultural.findByPk(id);
+			console.log(eventoCultural); // Corregido: usa console.log() en lugar de console()
 			if (!eventoCultural) {
 				return res.status(404).json({ error: "Evento cultural no encontrado" });
 			}
@@ -139,7 +142,6 @@ const EventoCulturalController = {
 
 			// Actualizar el evento cultural con los nuevos datos
 			await eventoCultural.update({
-				id_evento_cultural,
 				titulo,
 				descripcion,
 				tipo_evento,
@@ -160,6 +162,7 @@ const EventoCulturalController = {
 			res.status(500).json({ error: "Error al actualizar el evento cultural" });
 		}
 	},
+
 	async delete(req, res) {
 		try {
 			const { id } = req.params;
