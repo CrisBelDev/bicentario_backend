@@ -111,7 +111,7 @@ const EventoCulturalController = {
 	},
 
 	async update(req, res) {
-		console.log(req.body.etnias);
+		console.log(req.body);
 		console.log("--------------");
 		try {
 			const { id } = req.params;

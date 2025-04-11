@@ -1,4 +1,6 @@
 import Evento from "../models/Evento.js";
+import Patrocinador from "../models/Patrocinador.js";
+//===============================================================
 import jwt from "jsonwebtoken";
 import fs from "fs";
 import path from "path";
@@ -53,7 +55,7 @@ export const crearEvento = async (req, res, next) => {
 			tipo,
 			lugar,
 		});
-
+		console.log("evento creado: ", nuevoEvento);
 		return res
 			.status(201)
 			.json({ message: "Evento creado exitosamente", evento: nuevoEvento });
@@ -111,8 +113,15 @@ export const mostrarEventosPaginados = async (req, res) => {
 		// Obtener los eventos de la base de datos con paginación
 		const eventos = await Evento.findAll({
 			order: [["fecha_inicio", "DESC"]],
-			offset: (pageNumber - 1) * limitNumber, // Número de eventos a omitir
-			limit: limitNumber, // Número de eventos a obtener
+			offset: (pageNumber - 1) * limitNumber,
+			limit: limitNumber,
+			include: [
+				{
+					model: Patrocinador,
+					through: { attributes: [] }, // evita mostrar la tabla intermedia
+					attributes: ["id_patrocinador", "nombre"], // o los campos que desees
+				},
+			],
 		});
 
 		// Si no hay eventos
@@ -165,7 +174,7 @@ export const mostrarEventoPorId = async (req, res) => {
 				? `${req.protocol}://${req.get("host")}${evento.imagenes}`
 				: null, // Si no tiene imagen, asignamos null
 		};
-
+		console.log("datos enviando: ", eventoConImagenes);
 		return res.status(200).json({
 			message: "Evento encontrado",
 			evento: eventoConImagenes,
@@ -202,8 +211,15 @@ export const eliminarEvento = async (req, res) => {
 export const editarEvento = async (req, res) => {
 	try {
 		const { id } = req.params;
-		const { titulo, descripcion, fecha_inicio, fecha_fin, ubicacion, tipo } =
-			req.body;
+		const {
+			titulo,
+			descripcion,
+			fecha_inicio,
+			fecha_fin,
+			ubicacion,
+			tipo,
+			lugar,
+		} = req.body;
 
 		// Buscar el evento
 		const evento = await Evento.findByPk(id);
@@ -251,6 +267,7 @@ export const editarEvento = async (req, res) => {
 			ubicacion,
 			tipo,
 			imagenes: nuevaImagen, // Aquí es donde se asigna la nueva imagen
+			lugar,
 		});
 
 		return res.json({

@@ -45,6 +45,21 @@ import {
 	getEtniasByEventoCultural,
 } from "../controllers/EtniaController.js";
 
+import {
+	obtenerPatrocinadores,
+	obtenerPatrocinadorPorId,
+	crearPatrocinador,
+	actualizarPatrocinador,
+	eliminarPatrocinador,
+} from "../controllers/PatrocinadorController.js"; // Importa las funciones del controlador
+
+import {
+	crearRelacion,
+	obtenerRelaciones,
+	eliminarRelacion,
+	obtenerEventosConPatrocinadores,
+} from "../controllers/EventosPatrocinadoresController.js";
+
 //------------------------RUTAS------------------------------
 const router = express.Router();
 
@@ -153,3 +168,30 @@ router.post("/etnias", createEtnia);
 router.get("/etnias", getAllEtnias);
 router.get("/etnias/:id", getEtniaById);
 router.post("/etnia_evento_cultural", associateEtniaToEventoCultural);
+
+// ============ rutas de patrocinadores=============
+// Ruta para obtener todos los patrocinadores
+router.get("/patrocinadores", obtenerPatrocinadores);
+
+// Ruta para obtener un patrocinador por ID
+router.get("/patrocinadores/:id", obtenerPatrocinadorPorId);
+
+// Ruta para crear un nuevo patrocinador
+router.post("/patrocinadores", crearPatrocinador);
+
+// Ruta para actualizar un patrocinador
+router.put("/patrocinadores/:id", actualizarPatrocinador);
+
+// Ruta para eliminar un patrocinador
+router.delete("/patrocinadores/:id", eliminarPatrocinador);
+
+// =================== rutas de eventos patrocinador===================
+// Crear una relación entre evento y patrocinador
+router.post("/relacion", crearRelacion);
+
+// Obtener todas las relaciones
+router.get("/relaciones", obtenerRelaciones);
+
+// Eliminar una relación
+router.delete("/relacion/:id_evento/:id_patrocinador", eliminarRelacion);
+router.get("/eventopatrocinador", obtenerEventosConPatrocinadores);
