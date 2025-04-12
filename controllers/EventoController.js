@@ -1,5 +1,9 @@
 import Evento from "../models/Evento.js";
 import Patrocinador from "../models/Patrocinador.js";
+import {
+	crearRelacion,
+	crearRelacion1,
+} from "./EventosPatrocinadoresController.js";
 //===============================================================
 import jwt from "jsonwebtoken";
 import fs from "fs";
@@ -11,6 +15,20 @@ import { Console } from "console";
 export const crearEvento = async (req, res, next) => {
 	console.log("Datos recibidos en el backend:", req.body);
 	console.log("Archivo recibido:", req.file);
+
+	let patrocinadores = [];
+
+	if (req.body.patrocinadores) {
+		try {
+			patrocinadores = JSON.parse(req.body.patrocinadores);
+			console.log(
+				"IDs de patrocinadores:",
+				patrocinadores.map((p) => p.value)
+			);
+		} catch (err) {
+			console.error("Error al parsear patrocinadores:", err);
+		}
+	}
 
 	// `id_usuario` ya está disponible en `req.usuario` gracias al middleware de verificación del token
 	const id_usuario = req.usuario.id;
@@ -55,7 +73,20 @@ export const crearEvento = async (req, res, next) => {
 			tipo,
 			lugar,
 		});
-		console.log("evento creado: ", nuevoEvento);
+		console.log("evento creado: ", nuevoEvento.id_evento);
+
+		// Crear relaciones con los patrocinadores si hay alguno
+		if (patrocinadores.length > 0) {
+			try {
+				await crearRelacion1(
+					nuevoEvento.id_evento,
+					patrocinadores.map((p) => p.value)
+				);
+				console.log("Relación evento-patrocinadores creada");
+			} catch (relErr) {
+				console.error("Error al crear relación con patrocinadores:", relErr);
+			}
+		}
 		return res
 			.status(201)
 			.json({ message: "Evento creado exitosamente", evento: nuevoEvento });

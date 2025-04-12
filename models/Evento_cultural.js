@@ -33,18 +33,6 @@ const EventoCultural = db.define(
 			type: DataTypes.STRING,
 			allowNull: false, // Campo obligatorio
 		},
-		fecha_inicio: {
-			type: DataTypes.DATE,
-			allowNull: false, // Campo obligatorio
-		},
-		fecha_finalizacion: {
-			type: DataTypes.DATE,
-			allowNull: false, // Campo obligatorio
-		},
-		lugar: {
-			type: DataTypes.STRING,
-			allowNull: false, // Campo obligatorio
-		},
 		organizado_por: {
 			type: DataTypes.STRING,
 			allowNull: false, // Campo obligatorio

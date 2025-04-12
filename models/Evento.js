@@ -1,5 +1,6 @@
 import { DataTypes } from "sequelize";
 import db from "../config/db.js"; // Asegúrate de que esta importación esté correctamente configurada
+import EventoAcademico from "./Evento_academico.js"; // Asegúrate de importar correctamente
 
 const Evento = db.define(
 	"evento",

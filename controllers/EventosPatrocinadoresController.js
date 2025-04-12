@@ -26,6 +26,26 @@ export const obtenerEventosConPatrocinadores = async (req, res) => {
 };
 
 // Crear una relación entre un evento y un patrocinador
+// EventosPatrocinadoresController.js
+
+export const crearRelacion1 = async (id_evento, patrocinadores) => {
+	console.log("id patronizadores", patrocinadores);
+	try {
+		// Mapear y crear relaciones
+		const relaciones = patrocinadores.map((p) => ({
+			id_evento,
+			id_patrocinador: p, // o p.id si viene así
+		}));
+		console.log("Relaciones a crear:", relaciones);
+
+		await EventosPatrocinadores.bulkCreate(relaciones);
+		console.log("Relaciones creadas:", relaciones);
+	} catch (error) {
+		console.error("Error al crear relación con patrocinadores:", error);
+		throw error;
+	}
+};
+
 export const crearRelacion = async (req, res) => {
 	const { id_evento, id_patrocinador } = req.body;
 

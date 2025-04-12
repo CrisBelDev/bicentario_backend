@@ -60,6 +60,9 @@ import {
 	obtenerEventosConPatrocinadores,
 } from "../controllers/EventosPatrocinadoresController.js";
 
+import eventoAcademicoRoutes from "./evento_academicoRoutes.js";
+import eventoGastronomicoRoutes from "./evento_gastronomicoRoutes.js";
+
 //------------------------RUTAS------------------------------
 const router = express.Router();
 
@@ -195,3 +198,6 @@ router.get("/relaciones", obtenerRelaciones);
 // Eliminar una relación
 router.delete("/relacion/:id_evento/:id_patrocinador", eliminarRelacion);
 router.get("/eventopatrocinador", obtenerEventosConPatrocinadores);
+
+router.use("/evento-academico", eventoAcademicoRoutes);
+router.use("/evento-gastronomico", eventoGastronomicoRoutes);
