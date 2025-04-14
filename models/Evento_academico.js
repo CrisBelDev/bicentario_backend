@@ -15,10 +15,6 @@ const EventoAcademico = db.define(
 			onDelete: "CASCADE",
 			onUpdate: "CASCADE",
 		},
-		tipo_evento: {
-			type: DataTypes.STRING(100),
-			allowNull: false,
-		},
 		modalidad: {
 			type: DataTypes.ENUM("virtual", "presencial", "mixto"),
 			allowNull: false,

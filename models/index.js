@@ -3,6 +3,9 @@ import Patrocinador from "./Patrocinador.js";
 import EventosPatrocinadores from "./EventosPatrocinadores.js";
 import EventoAcademico from "./Evento_academico.js";
 import EventoGastronomico from "./Evento_gastronomico.js";
+import EventoCultural from "./Evento_cultural.js";
+import EventoDeportivo from "./Evento_deportivo.js";
+
 // Asociaciones
 Evento.belongsToMany(Patrocinador, {
 	through: EventosPatrocinadores,
@@ -36,6 +39,39 @@ EventoGastronomico.belongsTo(Evento, {
 	foreignKey: "id_evento",
 	as: "evento",
 });
+// Evento <-> EventoCultural
+Evento.hasOne(EventoCultural, {
+	foreignKey: "id_evento",
+	as: "evento_cultural",
+});
+
+EventoCultural.belongsTo(Evento, {
+	foreignKey: "id_evento",
+	as: "evento",
+});
+
+// Evento <-> EventoDeportivo
+Evento.hasOne(EventoDeportivo, {
+	foreignKey: "id_evento",
+	as: "evento_deportivo",
+});
+
+EventoDeportivo.belongsTo(Evento, {
+	foreignKey: "id_evento",
+	as: "evento",
+});
+
+/* // Relación 1:1 entre Evento y EventoCultural
+Evento.hasOne(EventoCultural, {
+	foreignKey: "id_evento",
+	onDelete: "CASCADE",
+	onUpdate: "CASCADE",
+  });
+  EventoCultural.belongsTo(Evento, {
+	foreignKey: "id_evento",
+	onDelete: "CASCADE",
+	onUpdate: "CASCADE",
+  }); */
 
 // Exportar modelos para usarlos en otros lugares
 export {
@@ -44,4 +80,6 @@ export {
 	EventosPatrocinadores,
 	EventoAcademico,
 	EventoGastronomico,
+	EventoCultural,
+	EventoDeportivo,
 };

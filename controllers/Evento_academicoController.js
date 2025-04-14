@@ -26,6 +26,7 @@ export const obtenerEventoAcademico = async (req, res) => {
 
 // Crear un nuevo evento académico
 export const crearEventoAcademico = async (req, res) => {
+	console.log("Datos recibidos en evento academico es:", req.body);
 	const datos = req.body;
 
 	try {

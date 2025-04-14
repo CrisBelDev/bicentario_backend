@@ -76,30 +76,16 @@ const EventoCulturalController = {
 			const {
 				id_evento,
 				descripcion,
-				titulo,
-				tipoEvento,
-				fechaInicio,
-				fechaFin,
-				lugar,
+
 				organizadoPor,
 			} = req.body;
-
-			// Obtener la URL de la imagen si existe
-			const imagenes = req.file
-				? `/uploads/evento_cultural/${req.file.filename}`
-				: null;
 
 			// Crear un nuevo evento cultural en la base de datos con los nuevos campos
 			const nuevoEventoCultural = await EventoCultural.create({
 				id_evento,
 				descripcion,
-				titulo, // Campo agregado
-				tipo_evento: tipoEvento, // Campo agregado
-				fecha_inicio: fechaInicio, // Campo agregado
-				fecha_finalizacion: fechaFin, // Campo agregado
-				lugar, // Campo agregado
+
 				organizado_por: organizadoPor, // Campo agregado
-				afiche_promocional: imagenes, // Campo agregado (opcional)
 			});
 
 			// Responder con el evento cultural recién creado
@@ -118,11 +104,7 @@ const EventoCulturalController = {
 			const {
 				id_evento_cultural,
 				descripcion,
-				titulo,
-				tipo_evento,
-				fecha_inicio,
-				fecha_finalizacion,
-				lugar,
+
 				organizado_por,
 			} = req.body;
 
@@ -133,23 +115,12 @@ const EventoCulturalController = {
 				return res.status(404).json({ error: "Evento cultural no encontrado" });
 			}
 
-			// Si se sube un nuevo afiche, se maneja aquí
-			let nuevaImagen = eventoCultural.afiche_promocional; // Por defecto, usamos la imagen anterior
-			if (req.file) {
-				// Si se sube una nueva imagen
-				nuevaImagen = `/uploads/evento_cultural/${req.file.filename}`;
-			}
-
 			// Actualizar el evento cultural con los nuevos datos
 			await eventoCultural.update({
 				titulo,
 				descripcion,
-				tipo_evento,
-				fecha_inicio,
-				fecha_finalizacion,
-				lugar,
+
 				organizado_por,
-				afiche_promocional: nuevaImagen, // Se actualiza la imagen
 			});
 
 			// Responder con el evento actualizado

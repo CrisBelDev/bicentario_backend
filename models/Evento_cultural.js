@@ -5,15 +5,10 @@ import Evento from "./Evento.js"; // Importamos el modelo Evento
 const EventoCultural = db.define(
 	"evento_cultural",
 	{
-		id_evento_cultural: {
-			autoIncrement: true,
-			type: DataTypes.INTEGER,
-			allowNull: false,
-			primaryKey: true,
-		},
 		id_evento: {
 			type: DataTypes.INTEGER,
 			allowNull: false,
+			primaryKey: true, // Definimos id_evento como clave primaria
 			references: {
 				model: Evento,
 				key: "id_evento",
@@ -25,21 +20,9 @@ const EventoCultural = db.define(
 			type: DataTypes.TEXT,
 			allowNull: false,
 		},
-		titulo: {
-			type: DataTypes.STRING,
-			allowNull: false, // Campo obligatorio
-		},
-		tipo_evento: {
-			type: DataTypes.STRING,
-			allowNull: false, // Campo obligatorio
-		},
 		organizado_por: {
 			type: DataTypes.STRING,
 			allowNull: false, // Campo obligatorio
-		},
-		afiche_promocional: {
-			type: DataTypes.STRING, // Podría ser la URL o el nombre del archivo
-			allowNull: true, // Puede ser opcional
 		},
 	},
 	{
@@ -47,5 +30,4 @@ const EventoCultural = db.define(
 		timestamps: false,
 	}
 );
-
 export default EventoCultural;

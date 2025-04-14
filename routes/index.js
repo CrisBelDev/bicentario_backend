@@ -62,7 +62,8 @@ import {
 
 import eventoAcademicoRoutes from "./evento_academicoRoutes.js";
 import eventoGastronomicoRoutes from "./evento_gastronomicoRoutes.js";
-
+import eventoDeportivoRoutes from "./evento_deportivoRoutes.js";
+import { obtenerEventoConDetalles } from "../controllers/consultas.js";
 //------------------------RUTAS------------------------------
 const router = express.Router();
 
@@ -201,3 +202,5 @@ router.get("/eventopatrocinador", obtenerEventosConPatrocinadores);
 
 router.use("/evento-academico", eventoAcademicoRoutes);
 router.use("/evento-gastronomico", eventoGastronomicoRoutes);
+router.use("/evento-deportivo", eventoDeportivoRoutes);
+router.get("/evento-detalles/:id", obtenerEventoConDetalles);
