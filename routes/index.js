@@ -25,7 +25,7 @@ import {
 	eliminarEvento,
 	editarEvento,
 } from "../controllers/EventoController.js";
-
+import { obtenerEventosPorTitulo } from "../controllers/consultas.js";
 import {
 	upload,
 	upload1,
@@ -147,6 +147,7 @@ router.get("/evento-cultural", EventoCulturalController.getAll);
 // Obtener un evento cultural por ID
 router.get("/evento-cultural/:id", EventoCulturalController.getById);
 router.get("/evento-cultural-info/:id", EventoCulturalController.getByIdPk);
+router.get("/evento-buscar/", obtenerEventosPorTitulo);
 // Crear un nuevo evento cultural
 router.post(
 	"/evento-cultural",
