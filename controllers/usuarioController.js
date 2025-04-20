@@ -379,3 +379,26 @@ export const loginAdministrador = async (req, res) => {
 		res.status(500).json({ mensaje: "Ocurrió un error. Inténtalo más tarde." });
 	}
 };
+
+// Cambiar el rol de un usuario
+export const cambiarRolUsuario = async (req, res) => {
+	try {
+		const { id_usuario } = req.body; // o req.body, según cómo lo envíes
+		const { nuevoRolId } = req.body;
+
+		// Validar que el usuario existe
+		const usuario = await Usuario.findByPk(id_usuario);
+		if (!usuario) {
+			return res.status(404).json({ mensaje: "Usuario no encontrado" });
+		}
+
+		// Actualizar el rol
+		usuario.rol_id = nuevoRolId;
+		await usuario.save();
+
+		res.status(200).json({ mensaje: "Rol actualizado correctamente", usuario });
+	} catch (error) {
+		console.error("Error al cambiar el rol del usuario:", error);
+		res.status(500).json({ mensaje: "Error del servidor" });
+	}
+};

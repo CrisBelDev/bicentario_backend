@@ -11,6 +11,7 @@ import {
 	eliminarUsuario,
 	loginUsuario,
 	loginAdministrador,
+	cambiarRolUsuario,
 } from "../controllers/usuarioController.js";
 
 //importando paiscontroller
@@ -84,7 +85,7 @@ router.put("/usuarios/:idUsuario", actualizarUsuario);
 router.delete("/usuarios/:idUsuario", eliminarUsuario);
 
 router.post("/login", loginUsuario);
-
+router.put("/cambiarrol", cambiarRolUsuario);
 /**
  * ==========================================
  * RUTAS PARA LA SECCION DE ADMINISTRADORES
