@@ -351,19 +351,37 @@ export const loginAdministrador = async (req, res) => {
 			});
 		}
 
-		// Verificar si el rol es admin (rol_id == 6)
-		if (usuario.rol_id !== 6) {
-			return res
-				.status(403)
-				.json({ mensaje: "Acceso denegado. No eres un administrador." });
+		// Verificar si el rol es uno de los permitidos
+		const rolesPermitidos = [2, 3, 6, 7, 8];
+
+		// Mapeo de IDs a nombres de roles
+		const nombreRoles = {
+			2: "cultural",
+			3: "academico",
+			6: "administrador",
+			7: "deportivo",
+			8: "gastronomico",
+		};
+
+		if (!rolesPermitidos.includes(usuario.rol_id)) {
+			return res.status(403).json({
+				mensaje: "Acceso denegado. No tienes los permisos necesarios.",
+			});
 		}
 
-		// Generar el token JWT para el administrador
+		// Obtener el nombre del rol
+		const nombreRol = nombreRoles[usuario.rol_id] || "desconocido";
+
+		// Generar el token JWT con el nombre del rol
 		const token = jwt.sign(
-			{ id: usuario.id_usuario, rol_id: usuario.rol_id },
+			{
+				id: usuario.id_usuario,
+				rol_id: usuario.rol_id,
+				rol_nombre: nombreRol,
+			},
 			process.env.JWT_SECRET,
 			{
-				expiresIn: "12h", // Puedes ajustar el tiempo de expiración según sea necesario
+				expiresIn: "12h",
 			}
 		);
 
@@ -373,6 +391,7 @@ export const loginAdministrador = async (req, res) => {
 			token,
 			nombre: usuario.nombre,
 			apellido: usuario.apellido,
+			rol: nombreRol, // Puedes retornarlo también si lo necesitas en frontend
 		});
 	} catch (error) {
 		console.error("Error en el inicio de sesión:", error);
