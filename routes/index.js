@@ -10,6 +10,7 @@ import {
 	actualizarUsuario,
 	eliminarUsuario,
 	loginUsuario,
+	login,
 	loginAdministrador,
 	cambiarRolUsuario,
 } from "../controllers/usuarioController.js";
@@ -65,6 +66,8 @@ import eventoAcademicoRoutes from "./evento_academicoRoutes.js";
 import eventoGastronomicoRoutes from "./evento_gastronomicoRoutes.js";
 import eventoDeportivoRoutes from "./evento_deportivoRoutes.js";
 import { obtenerEventoConDetalles } from "../controllers/consultas.js";
+
+import notificacion_routes from "./notificacion_routes.js";
 //------------------------RUTAS------------------------------
 const router = express.Router();
 
@@ -84,7 +87,8 @@ router.put("/usuarios/:idUsuario", actualizarUsuario);
 // Eliminar usuario por su (ID)
 router.delete("/usuarios/:idUsuario", eliminarUsuario);
 
-router.post("/login", loginUsuario);
+//router.post("/login", loginUsuario);
+router.post("/login", login);
 router.put("/cambiarrol", cambiarRolUsuario);
 /**
  * ==========================================
@@ -206,3 +210,5 @@ router.use("/evento-academico", eventoAcademicoRoutes);
 router.use("/evento-gastronomico", eventoGastronomicoRoutes);
 router.use("/evento-deportivo", eventoDeportivoRoutes);
 router.get("/evento-detalles/:id", obtenerEventoConDetalles);
+router.use("/notificacion", notificacion_routes);
+//

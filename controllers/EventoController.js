@@ -12,6 +12,11 @@ import path from "path";
 // para la subida de arhivos
 import { upload } from "../config/multerConfig.js";
 import { Console } from "console";
+import {
+	crearNotificacion,
+	crearNotificacionConID,
+} from "./NotificacionController.js";
+//===============================================================
 export const crearEvento = async (req, res, next) => {
 	console.log("Datos recibidos en el backend:", req.body);
 	console.log("Archivo recibido:", req.file);
@@ -74,7 +79,7 @@ export const crearEvento = async (req, res, next) => {
 			lugar,
 		});
 		console.log("evento creado: ", nuevoEvento.id_evento);
-
+		await crearNotificacionConID(nuevoEvento.id_evento);
 		// Crear relaciones con los patrocinadores si hay alguno
 		if (patrocinadores.length > 0) {
 			try {

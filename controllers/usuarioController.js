@@ -324,6 +324,63 @@ export const loginUsuario = async (req, res) => {
 	}
 };
 
+export const login = async (req, res) => {
+	const { correo, password } = req.body;
+
+	try {
+		const usuario = await Usuario.findOne({ where: { correo } });
+
+		if (!usuario || !(await bcrypt.compare(password, usuario.password))) {
+			return res
+				.status(400)
+				.json({ mensaje: "Correo o contraseña incorrectos" });
+		}
+
+		if (usuario.estado === "pendiente") {
+			return res.status(400).json({
+				mensaje: "Cuenta pendiente de verificación. Revisa tu correo.",
+				verificado: false,
+			});
+		}
+
+		// Mapeo de roles
+		const nombreRoles = {
+			2: "cultural",
+			3: "academico",
+			6: "administrador",
+			7: "deportivo",
+			8: "gastronomico",
+		};
+
+		// Token base
+		const payload = {
+			id: usuario.id_usuario,
+		};
+
+		// Si el usuario tiene un rol permitido, añade info adicional
+		if (Object.keys(nombreRoles).includes(usuario.rol_id.toString())) {
+			payload.rol_id = usuario.rol_id;
+			payload.rol_nombre = nombreRoles[usuario.rol_id];
+		}
+
+		const token = jwt.sign(payload, process.env.JWT_SECRET, {
+			expiresIn: "12h",
+		});
+
+		res.json({
+			mensaje: "Inicio de sesión exitoso",
+			token,
+			nombre: usuario.nombre,
+			apellido: usuario.apellido,
+			idUsuario: usuario.id_usuario,
+			rol: nombreRoles[usuario.rol_id] || null, // opcional en frontend
+		});
+	} catch (error) {
+		console.error("Error en el inicio de sesión:", error);
+		res.status(500).json({ mensaje: "Ocurrió un error. Inténtalo más tarde." });
+	}
+};
+
 /**
  * ==========================================
  * SECCION DE ADMINISTRADORES
