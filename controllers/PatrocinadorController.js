@@ -28,25 +28,23 @@ export const obtenerPatrocinadorPorId = async (req, res) => {
 
 // Crear un nuevo patrocinador
 export const crearPatrocinador = async (req, res) => {
-	console.log("req.body patrocinador: ", req.body);
-	const { nuevos } = req.body;
+	console.log("Creando patrocinador:", req.body);
+	const { nombre } = req.body;
+
+	if (!nombre) {
+		return res.status(400).json({ mensaje: "El nombre es obligatorio." });
+	}
 
 	try {
-		// Transformamos ['tester1', 'manaco'] a [{ nombre: 'tester1' }, { nombre: 'manaco' }]
-		const nuevosPatrocinadores = nuevos.map((nombre) => ({ nombre }));
+		const nuevoPatrocinador = await Patrocinador.create({ nombre });
 
-		const creados = await Patrocinador.bulkCreate(nuevosPatrocinadores, {
-			returning: true,
+		res.status(201).json({
+			id_patrocinador: nuevoPatrocinador.id_patrocinador,
+			nombre: nuevoPatrocinador.nombre,
 		});
-
-		console.log("Patrocinadores creados: ", creados);
-
-		// Devolver solo los IDs creados
-		const nuevosIds = creados.map((p) => p.id_patrocinador);
-		res.status(201).json({ nuevosIds });
 	} catch (error) {
-		console.error("Error al crear patrocinadores:", error);
-		res.status(500).json({ mensaje: "Error al crear patrocinadores", error });
+		console.error("Error al crear patrocinador:", error);
+		res.status(500).json({ mensaje: "Error al crear patrocinador", error });
 	}
 };
 
