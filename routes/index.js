@@ -13,6 +13,7 @@ import {
 	login,
 	loginAdministrador,
 	cambiarRolUsuario,
+	registrarUsuarioSinConfirmacion,
 } from "../controllers/usuarioController.js";
 
 //importando paiscontroller
@@ -73,6 +74,7 @@ const router = express.Router();
 
 //agrega nuevos usuarios por post
 router.post("/usuarios", registrarUsuario);
+router.post("/usuariosinconfirmacion", registrarUsuarioSinConfirmacion);
 router.post("/confirmar", confirmarCuenta);
 
 // Obtener usuario en especifico (ID)

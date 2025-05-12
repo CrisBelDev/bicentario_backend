@@ -89,6 +89,51 @@ export const crearNotificacionConID = async (id_evento) => {
 		console.error("Error al crear las notificaciones:", error);
 	}
 };
+export const crearNotificacionesParaTodos = async () => {
+	try {
+		// Obtener todos los eventos
+		const eventos = await Evento.findAll();
+		if (eventos.length === 0) throw new Error("No hay eventos registrados");
+
+		// Obtener todos los usuarios
+		const usuarios = await Usuario.findAll();
+		if (usuarios.length === 0) throw new Error("No hay usuarios registrados");
+
+		const notificaciones = [];
+
+		for (let evento of eventos) {
+			const mensaje = `Ven y sé parte de "${evento.titulo}", ¡no te lo pierdas!`;
+
+			for (let usuario of usuarios) {
+				// Verificar si ya existe una notificación para ese usuario y evento
+				const yaExiste = await Notificacion.findOne({
+					where: {
+						id_usuario: usuario.id_usuario,
+						id_evento: evento.id_evento,
+					},
+				});
+
+				if (!yaExiste) {
+					const notificacion = await Notificacion.create({
+						id_usuario: usuario.id_usuario,
+						id_evento: evento.id_evento,
+						mensaje,
+						tipo: "evento",
+					});
+					notificaciones.push(notificacion);
+				}
+			}
+		}
+
+		console.log(
+			"Notificaciones creadas exitosamente (sin duplicar).",
+			notificaciones
+		);
+	} catch (error) {
+		console.error("Error al crear notificaciones:", error);
+	}
+};
+
 // Controlador para marcar una notificación como leída
 export const marcarComoLeida = async (req, res) => {
 	try {

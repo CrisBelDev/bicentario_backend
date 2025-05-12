@@ -53,6 +53,42 @@ export const registrarUsuario = async (req, res) => {
 		res.status(500).json({ mensaje: "Error en el servidor" });
 	}
 };
+export const registrarUsuarioSinConfirmacion = async (req, res) => {
+	const errores = validationResult(req);
+	if (!errores.isEmpty()) {
+		return res.status(400).json({ errores: errores.array() });
+	}
+
+	const { nombre, apellido, correo, telefono, password, pais, genero } =
+		req.body;
+
+	try {
+		// Verificar si el correo ya está registrado
+		const usuarioExistente = await Usuario.findOne({ where: { correo } });
+		if (usuarioExistente) {
+			return res.status(400).json({ mensaje: "El correo ya está registrado" });
+		}
+
+		// Crear usuario con estado 'confirmado'
+		await Usuario.create({
+			nombre,
+			apellido,
+			correo,
+			telefono,
+			password,
+			id_ciudad: pais,
+			genero,
+			estado: "confirmado", // Aquí se establece el estado directamente
+		});
+
+		res.status(201).json({
+			mensaje: "Usuario registrado correctamente.",
+		});
+	} catch (error) {
+		console.error("Error al registrar usuario:", error);
+		res.status(500).json({ mensaje: "Error en el servidor" });
+	}
+};
 
 // Confirmar cuenta
 export const confirmarCuenta = async (req, res) => {
