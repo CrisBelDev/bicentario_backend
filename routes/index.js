@@ -69,6 +69,8 @@ import eventoDeportivoRoutes from "./evento_deportivoRoutes.js";
 import { obtenerEventoConDetalles } from "../controllers/consultas.js";
 
 import notificacion_routes from "./notificacion_routes.js";
+import asistenciaRoutes from "./asistencia_routes.js";
+import consultas from "./consultas_routes.js";
 //------------------------RUTAS------------------------------
 const router = express.Router();
 
@@ -214,3 +216,7 @@ router.use("/evento-deportivo", eventoDeportivoRoutes);
 router.get("/evento-detalles/:id", obtenerEventoConDetalles);
 router.use("/notificacion", notificacion_routes);
 //
+router.use("/asistencia", asistenciaRoutes);
+
+// Rutas de consultas
+router.use("/consultas", consultas);

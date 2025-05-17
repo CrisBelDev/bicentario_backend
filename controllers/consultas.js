@@ -5,8 +5,10 @@ import {
 	EventoAcademico,
 	EventoDeportivo,
 	EventoGastronomico,
+	Asistencia,
 } from "../models/index.js";
 import { Op } from "sequelize";
+import { Sequelize } from "sequelize";
 
 export const obtenerEventoConDetalles = async (req, res) => {
 	try {
@@ -114,5 +116,75 @@ export const obtenerEventosPorTitulo = async (req, res) => {
 		return res
 			.status(500)
 			.json({ message: "Error interno del servidor consultas" });
+	}
+};
+
+export const eventosPorTipo = async (req, res) => {
+	try {
+		const [cultural, deportivo, academico, gastronomico] = await Promise.all([
+			EventoCultural.count(),
+			EventoDeportivo.count(),
+			EventoAcademico.count(),
+			EventoGastronomico.count(),
+		]);
+
+		return res.status(200).json([
+			{ tipo: "Cultural", cantidad: cultural },
+			{ tipo: "Deportivo", cantidad: deportivo },
+			{ tipo: "Académico", cantidad: academico },
+			{ tipo: "Gastronómico", cantidad: gastronomico },
+		]);
+	} catch (error) {
+		console.error("Error al obtener eventos por tipo:", error);
+		return res.status(500).json({ message: "Error interno del servidor" });
+	}
+};
+
+export const eventosPorMes = async (req, res) => {
+	try {
+		const resultados = await Evento.findAll({
+			attributes: [
+				[
+					Sequelize.fn("DATE_FORMAT", Sequelize.col("fecha_inicio"), "%Y-%m"),
+					"mes",
+				],
+				[Sequelize.fn("COUNT", Sequelize.col("*")), "total_eventos"],
+			],
+			group: ["mes"],
+			order: [[Sequelize.literal("mes"), "ASC"]],
+			raw: true,
+		});
+
+		res.json(resultados);
+	} catch (error) {
+		console.error("Error al obtener eventos por mes:", error);
+		res.status(500).json({ error: "Error al obtener eventos por mes" });
+	}
+};
+
+export const asistenciasPorEvento = async (req, res) => {
+	try {
+		const resultados = await Asistencia.findAll({
+			attributes: [
+				[Sequelize.col("asistencia.id_evento"), "id_evento"],
+				[
+					Sequelize.fn("COUNT", Sequelize.col("asistencia.id_evento")),
+					"asistencias",
+				],
+			],
+			include: [
+				{
+					model: Evento,
+					as: "evento",
+					attributes: ["id_evento", "titulo"],
+				},
+			],
+			group: ["asistencia.id_evento", "evento.id_evento", "evento.titulo"],
+		});
+
+		res.json(resultados);
+	} catch (error) {
+		console.error("Error al obtener asistencias por evento:", error);
+		res.status(500).json({ error: "Error al obtener asistencias por evento" });
 	}
 };

@@ -6,7 +6,7 @@ import EventoGastronomico from "./Evento_gastronomico.js";
 import EventoCultural from "./Evento_cultural.js";
 import EventoDeportivo from "./Evento_deportivo.js";
 import Notificacion from "./Notificacion.js";
-
+import Asistencia from "./Asistencia.js";
 // Asociaciones
 Evento.belongsToMany(Patrocinador, {
 	through: EventosPatrocinadores,
@@ -72,6 +72,11 @@ Evento.hasMany(Notificacion, {
 	as: "notificaciones",
 });
 
+Asistencia.belongsTo(Evento, {
+	foreignKey: "id_evento",
+	as: "evento", // <-- Este alias es importante
+});
+
 /* // Relación 1:1 entre Evento y EventoCultural
 Evento.hasOne(EventoCultural, {
 	foreignKey: "id_evento",
@@ -94,4 +99,5 @@ export {
 	EventoCultural,
 	EventoDeportivo,
 	Notificacion,
+	Asistencia,
 };

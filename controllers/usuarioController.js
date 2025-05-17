@@ -54,6 +54,7 @@ export const registrarUsuario = async (req, res) => {
 	}
 };
 export const registrarUsuarioSinConfirmacion = async (req, res) => {
+	console.log("registrarUsuarioSinConfirmacion", req.body);
 	const errores = validationResult(req);
 	if (!errores.isEmpty()) {
 		return res.status(400).json({ errores: errores.array() });
@@ -70,7 +71,7 @@ export const registrarUsuarioSinConfirmacion = async (req, res) => {
 		}
 
 		// Crear usuario con estado 'confirmado'
-		await Usuario.create({
+		const usuariosinconfirmacion = await Usuario.create({
 			nombre,
 			apellido,
 			correo,
@@ -80,9 +81,10 @@ export const registrarUsuarioSinConfirmacion = async (req, res) => {
 			genero,
 			estado: "confirmado", // Aquí se establece el estado directamente
 		});
-
+		console.log("usuario registrado sin confirmacion");
 		res.status(201).json({
-			mensaje: "Usuario registrado correctamente.",
+			mensaje: "Usuario registrado correctamente sin confirmacion.",
+			usuario: usuariosinconfirmacion,
 		});
 	} catch (error) {
 		console.error("Error al registrar usuario:", error);
