@@ -9,7 +9,7 @@ import {
 } from "../models/index.js";
 import { Op } from "sequelize";
 import { Sequelize } from "sequelize";
-
+import { subMonths } from "date-fns"; // si usas date-fns
 export const obtenerEventoConDetalles = async (req, res) => {
 	try {
 		const { id } = req.params;
@@ -121,11 +121,45 @@ export const obtenerEventosPorTitulo = async (req, res) => {
 
 export const eventosPorTipo = async (req, res) => {
 	try {
+		const fechaLimite = subMonths(new Date(), 6);
+
 		const [cultural, deportivo, academico, gastronomico] = await Promise.all([
-			EventoCultural.count(),
-			EventoDeportivo.count(),
-			EventoAcademico.count(),
-			EventoGastronomico.count(),
+			EventoCultural.count({
+				include: [
+					{
+						model: Evento,
+						as: "evento", // asegúrate que esta alias sea correcto en la relación
+						where: { fecha_inicio: { [Op.gte]: fechaLimite } },
+					},
+				],
+			}),
+			EventoDeportivo.count({
+				include: [
+					{
+						model: Evento,
+						as: "evento",
+						where: { fecha_inicio: { [Op.gte]: fechaLimite } },
+					},
+				],
+			}),
+			EventoAcademico.count({
+				include: [
+					{
+						model: Evento,
+						as: "evento",
+						where: { fecha_inicio: { [Op.gte]: fechaLimite } },
+					},
+				],
+			}),
+			EventoGastronomico.count({
+				include: [
+					{
+						model: Evento,
+						as: "evento",
+						where: { fecha_inicio: { [Op.gte]: fechaLimite } },
+					},
+				],
+			}),
 		]);
 
 		return res.status(200).json([
@@ -142,6 +176,8 @@ export const eventosPorTipo = async (req, res) => {
 
 export const eventosPorMes = async (req, res) => {
 	try {
+		const fechaLimite = subMonths(new Date(), 6);
+
 		const resultados = await Evento.findAll({
 			attributes: [
 				[
@@ -150,6 +186,11 @@ export const eventosPorMes = async (req, res) => {
 				],
 				[Sequelize.fn("COUNT", Sequelize.col("*")), "total_eventos"],
 			],
+			where: {
+				fecha_inicio: {
+					[Op.gte]: fechaLimite,
+				},
+			},
 			group: ["mes"],
 			order: [[Sequelize.literal("mes"), "ASC"]],
 			raw: true,
@@ -164,6 +205,8 @@ export const eventosPorMes = async (req, res) => {
 
 export const asistenciasPorEvento = async (req, res) => {
 	try {
+		const fechaLimite = subMonths(new Date(), 6);
+
 		const resultados = await Asistencia.findAll({
 			attributes: [
 				[Sequelize.col("asistencia.id_evento"), "id_evento"],
@@ -177,6 +220,11 @@ export const asistenciasPorEvento = async (req, res) => {
 					model: Evento,
 					as: "evento",
 					attributes: ["id_evento", "titulo"],
+					where: {
+						fecha_inicio: {
+							[Op.gte]: fechaLimite,
+						},
+					},
 				},
 			],
 			group: ["asistencia.id_evento", "evento.id_evento", "evento.titulo"],
